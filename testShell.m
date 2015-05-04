@@ -2,8 +2,8 @@ clc;clear;close all;
 %%
 %1.读取混合语音
 % inPutFilePath = 'E:\\MatlabCode\\seperation\\shu\\female_male_10_50.wav';
-% inPutFilePath = 'E:\\MatlabCode\\seperation\\shu\\music_male_10_50.wav';
-inPutFilePath = 'E:\\MatlabCode\\seperation\\shu\\music_female_10_50.wav';
+inPutFilePath = 'E:\\MatlabCode\\seperation\\shu\\music_male_10_50.wav';
+% inPutFilePath = 'E:\\MatlabCode\\seperation\\shu\\music_female_10_50.wav';
 [y, fs_original] = audioread(inPutFilePath);
 x_L = y(:,1);
 x_R = y(:,2);
@@ -27,7 +27,7 @@ tf_R=tfanalysis(x_R,awin,frameShift,frameSize) ; % time-freq domain
 
 %%
 %3.定位分离迭代
-for Iter = 1:1
+for Iter = 1:5
     [tf_L,tf_R,mono] = sepOnce(tf_L,tf_R,fs);
 end
 

@@ -139,13 +139,13 @@ for sourceIter = 1:sourceNum
     dis_mat(:,:,sourceIter) = ((abs(IID_mat.*tf_L-exp(-1j*sourceITD(sourceIter)/onesample.*fmat).*tf_R)).^2)./(ones(frameSize,frameAmount)+IID_mat.^2);
 end
 %按最短距离原则计算mask
-for i = 1:frameSize %计算0~pi之间的mask
+for i = 1:frameSize/2 %计算0~pi之间的mask
     for j = 1:frameAmount
         [~,belong] = min(dis_mat(i,j,:));
         mask(i,j,belong) = 1;
     end
 end
-% mask(frameSize/2+1:frameSize,:,:) = mask(1:frameSize/2,:,:); %后一半的mask与前一半对称
+mask(frameSize/2+1:frameSize,:,:) = mask(1:frameSize/2,:,:); %后一半的mask与前一半对称
 %4.3根据掩码分离频点
 tf_L_seped = zeros(size(mask));
 tf_R_seped = zeros(size(mask));
