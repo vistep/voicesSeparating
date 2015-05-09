@@ -90,7 +90,7 @@ sourceITD = unique(sourceITD);%去除重复声源
 sourceNum = length(sourceITD);
 sourceIndex = zeros(1,sourceNum);
 for n = 1:sourceNum
-    sourceIndex(n) = find(mean_ITD==sourceITD(n));
+    sourceIndex = find(mean_ITD==sourceITD(n));
 end
 azimuthout = azimuth(sourceIndex);
 %%
@@ -145,10 +145,8 @@ for sourceIter = 1:sourceNum
     try
         IID_mat = repmat(mean_IID(:,sourceIndex(sourceIter)),1,frameAmount);
     catch
-        save error.mat;
-        error('exit');
-    end
-%     IID_mat = repmat(mean_IID(:,sourceIndex(sourceIter)),1,frameAmount);
+        save
+    IID_mat = repmat(mean_IID(:,sourceIndex(sourceIter)),1,frameAmount);
     dis_mat(:,:,sourceIter) = ((abs(IID_mat.*tf_L-exp(-1j*sourceITD(sourceIter)/onesample.*fmat).*tf_R)).^2)./(ones(frameSize,frameAmount)+IID_mat.^2);
 end
 %按最短距离原则计算mask

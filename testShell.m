@@ -1,40 +1,14 @@
 clc;clear;close all;
-%%
-%1.读取混合语音
-% inPutFilePath = 'E:\\MatlabCode\\seperation\\shu\\female_male_10_50.wav';
-inPutFilePath = 'E:\\MatlabCode\\seperation\\shu\\mixedvoice\3_330.wav';
-% inPutFilePath = 'E:\\MatlabCode\\seperation\\shu\\music_female_10_50.wav';
-inPutFilePath = 'E:\\Document\\科研相关\\语音库\\data\\虚拟声\\female\\female_90.wav';
-[y, fs_original] = audioread(inPutFilePath);
-x_L = y(:,1);
-x_R = y(:,2);
-%%
-%2.预处理
-%2.1参数设置
-fs = 16000;
-%frameSize = fs*0.06;%一帧为60ms
-frameSize = 512;
-Offset = frameSize/2;
-frameShift = 128;
-MaxLag = 44;
-onesample = 1000000/fs;
-%2.2重采样
-x_L = resample(x_L,fs,fs_original);
-x_R = resample(x_R,fs,fs_original);
-%2.3分帧加窗,时频分析
-awin=hamming(frameSize);
-tf_L=tfanalysis(x_L,awin,frameShift,frameSize); % time-freq domain
-tf_R=tfanalysis(x_R,awin,frameShift,frameSize) ; % time-freq domain
+deg = 0:10:90;
+degEst=cell(1,length(deg));
+for i = 1:length(deg)
+%     inPutFilePath = sprintf('E:\\Document\\科研相关\\语音库\\data\\采集声\\female_%02d.wav',deg(i));
+%     inPutFilePath = sprintf('E:\\Document\\科研相关\\语音库\\data\\虚拟声\\whitenoise\\female_noise_20_%02d.wav',deg(i));
+%     inPutFilePath = sprintf('E:\\Document\\科研相关\\语音库\\data\\虚拟声\\whitenoise\\female_noise_15_%02d.wav',deg(i));
+%     inPutFilePath = sprintf('E:\\Document\\科研相关\\语音库\\data\\虚拟声\\whitenoise\\female_noise_10_%02d.wav',deg(i));
+%     inPutFilePath = sprintf('E:\\Document\\科研相关\\语音库\\data\\虚拟声\\whitenoise\\female_noise_5_%02d.wav',deg(i));
+    inPutFilePath = sprintf('E:\\Document\\科研相关\\语音库\\data\\虚拟声\\whitenoise\\female_noise_0_%02d.wav',deg(i));
 
-%%
-%3.定位分离迭代
-for Iter = 1:1
-    [tf_L,tf_R,mono,azimuthout] = sepOnce(tf_L,tf_R,fs);
-end
-
-%%
-%4.转换到时域
-output = cell(1,size(mono,3));
-for n = 1:size(mono,3)
-    output{n}=tfsynthesis(mono(:,:,n),sqrt(2)*awin/(2*frameSize),frameShift);
+    [output,ami] = sepIter(inPutFilePath,1);
+    degEst{i}=ami;
 end
