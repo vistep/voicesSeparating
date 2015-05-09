@@ -1,4 +1,4 @@
-function [ tf_L_seped,tf_R_seped,mono ] = sepOnce( tf_L,tf_R,fs )
+function [ tf_L_seped,tf_R_seped,mono,azimuthout ] = sepOnce( tf_L,tf_R,fs )
 %source location detect and sound sepration
 %   input:
 %         tf_L: TF units after window and segmentation of left channel
@@ -8,6 +8,7 @@ function [ tf_L_seped,tf_R_seped,mono ] = sepOnce( tf_L,tf_R,fs )
 %         tf_R_seped: redistributed right TF units
 
 %   info: Jiaming.Shu 2015.4.29
+azimuth = -90:5:90;
 %%
 %1.参数计算和设置
 frameSize = size(tf_L,1);
@@ -86,6 +87,7 @@ for n = 1:length(sourceITD)
     sourceITD(1,n) = mean_ITD(minIndex);
 end
 sourceNum = length(sourceITD);
+azimuthout = azimuth(sourceIndex);
 %%
 %4.声源分离 
 % mask = zeros(length(sourceITD),frameAmount);
@@ -103,7 +105,7 @@ fmat=freq(ones(size(tf_L,2),1),:)';
 % delta = onesample*delta; %转换成us
 %4.2计算每个频点的掩码
 load('./trainData/IID_GCC_16k.mat');
-mask = zeros(frameSize,frameAmount,sourceNum);%最后一维代表声源编号
+mask = 0.01*ones(frameSize,frameAmount,sourceNum);%最后一维代表声源编号
 % mask1 = zeros(frameSize,frameAmount,sourceNum);
 dis_mat = zeros(frameSize,frameAmount,sourceNum);
 % dis_mat1 = zeros(frameSize,frameAmount,sourceNum);

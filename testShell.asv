@@ -2,9 +2,8 @@ clc;clear;close all;
 %%
 %1.读取混合语音
 % inPutFilePath = 'E:\\MatlabCode\\seperation\\shu\\female_male_10_50.wav';
-inPutFilePath = 'E:\\MatlabCode\\seperation\\shu\\mixedvoice\3_330.wav';
+inPutFilePath = 'E:\\MatlabCode\\seperation\\shu\\mixedvoice\20.wav';
 % inPutFilePath = 'E:\\MatlabCode\\seperation\\shu\\music_female_10_50.wav';
-inPutFilePath = 'E:\\Document\\科研相关\\语音库\\data\\虚拟声\\female\\female_90.wav';
 [y, fs_original] = audioread(inPutFilePath);
 x_L = y(:,1);
 x_R = y(:,2);

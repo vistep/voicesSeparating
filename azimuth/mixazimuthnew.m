@@ -1,23 +1,24 @@
 clear;clc;
-addpath('E:\SPEECH\binauralCS\code\azimuth');
+addpath('E:\\Document\\科研相关\\lxx语音库\\azimuth');
 fs = 16000;
-soursenum=2;
+soursenum=3;
 azimuth=[5,40,330,280];
-inPutFilePath ={'E:\SPEECH\binauralCS\code\azimuth\s18.wav',...
-                'E:\SPEECH\binauralCS\code\azimuth\s1.wav',...
-                'E:\SPEECH\binauralCS\code\azimuth\s2.wav',...
-                'E:\SPEECH\binauralCS\code\azimuth\s9.wav'};
+inPutFilePath ={'E:\\Document\\科研相关\\lxx语音库\\azimuth\\s18.wav',...
+                'E:\\Document\\科研相关\\lxx语音库\\azimuth\\s1.wav',...
+                'E:\\Document\\科研相关\\lxx语音库\\azimuth\\s2.wav',...
+                'E:\\Document\\科研相关\\lxx语音库\\azimuth\\s9.wav'};
 
 % 读full数据库
 out=[];filename='';
-for i=2:2%soursenum
+for i=soursenum
     clear voice y x_L x_R x
     if azimuth(i) == 0
-        inPutFilePathL = sprintf('E:\\SPEECH\\HRTF(MIT)\\full\\elev0\\L0e000a.dat');
-        inPutFilePathR = sprintf('E:\\SPEECH\\HRTF(MIT)\\full\\elev0\\L0e000a.dat');
+        inPutFilePathL = sprintf('E:\\Document\\科研相关\\lxx语音库\\HRTF(MIT)\\full\\elev0\\L0e000a.dat');
+        inPutFilePathR = sprintf('E:\\Document\\科研相关\\lxx语音库\\HRTF(MIT)\\full\\elev0\\L0e000a.dat');
     else
-        inPutFilePathL = sprintf('E:\\SPEECH\\HRTF(MIT)\\full\\elev0\\L0e%03da.dat',azimuth(i));
-        inPutFilePathR = sprintf('E:\\SPEECH\\HRTF(MIT)\\full\\elev0\\L0e%03da.dat',360-azimuth(i));
+        inPutFilePathL = sprintf('E:\\Document\\科研相关\\lxx语音库\\HRTF(MIT)\\full\\elev0\\L0e%03da.dat',azimuth(i));
+%         inPutFilePathR = sprintf('E:\\Document\\科研相关\\lxx语音库\\HRTF(MIT)\\full\\elev0\\L0e%03da.dat',360-azimuth(i));
+        inPutFilePathR = sprintf('E:\\Document\\科研相关\\lxx语音库\\HRTF(MIT)\\full\\elev0\\R0e%03da.dat',azimuth(i));
     end
     hrir_L = readraw(inPutFilePathL);
     hrir_R = readraw(inPutFilePathR);
@@ -41,7 +42,7 @@ for i=2:2%soursenum
     filename=[filename,'_',num2str(azimuth(i))];
 end
 
-wavwrite(out,fs,['E:\SPEECH\binauralCS\code\selectedDUET\角度语音3男论文补充组\',num2str(soursenum),filename]);
+wavwrite(out,fs,['E:\\Document\\科研相关\\lxx语音库\\tmp\\',num2str(soursenum),filename]);
 
 
 

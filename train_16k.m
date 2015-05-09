@@ -13,7 +13,7 @@ onesample = 1000000/fs;
 
 for azimuth =0:5:90
     
-    inPutFilePath = sprintf('E:\\Document\\科研相关\\语音库\\data\\Speech\\方位白噪声\\WhiteNoise%03d.wav',azimuth);
+    inPutFilePath = sprintf('E:\\Document\\科研相关\\lxx语音库\\方位白噪声16k\\WhiteNoise%03d.wav',azimuth);
     [y, fs_original] = audioread(inPutFilePath);
     x_L = resample(y(:,1),16000,44100);
     x_R = resample(y(:,2),16000,44100);
@@ -57,6 +57,7 @@ for azimuth =0:5:90
 end
 
 mean_ITD = mean(ITD,2);
+% mean_ITD = mean_ITD';
 mean_ITD = [-1*mean_ITD(end:-1:2);mean_ITD]';
 
 temp=size(IID);
