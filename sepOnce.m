@@ -14,7 +14,7 @@ azimuth = -90:5:90;
 frameSize = size(tf_L,1);
 frameAmount = size(tf_L,2);
 audioNum = size(tf_L,3);
-Offset = frameSize/2;
+Offset = frameSize;
 % frameShift = 128;
 MaxLag = 44;
 onesample = 1000000/fs;
@@ -26,9 +26,11 @@ for audioIter = 1:audioNum
 
         Pxx = tf_L(:,n,audioIter);
         Pyy = tf_R(:,n,audioIter);
-        Pxy = Pxx.*conj(Pyy);
+        Pxx1 = fft(ifft(Pxx),2*frameSize);
+        Pyy1 = fft(ifft(Pyy),2*frameSize);
+        Pxy1 = Pxx1.*conj(Pyy1);
 
-        [G,~,~] = GCC('PHAT',Pxx,Pyy,Pxy,fs,frameSize,frameSize);
+        [G,~,~] = GCC('PHAT',Pxx1,Pyy1,Pxy1,fs,2*frameSize,2*frameSize);
         delay_index=Offset-MaxLag:Offset+MaxLag;
         delay_us=delay_index/fs*1000000;
         G_new = G(delay_index);
@@ -142,13 +144,13 @@ tf_R = sum(tf_R,3);
 % end
 %将各个声源数据代入计算两声道对应频点之间的距离
 for sourceIter = 1:sourceNum
-    try
-        IID_mat = repmat(mean_IID(:,sourceIndex(sourceIter)),1,frameAmount);
-    catch
-        save error.mat;
-        error('exit');
-    end
-%     IID_mat = repmat(mean_IID(:,sourceIndex(sourceIter)),1,frameAmount);
+%     try
+%         IID_mat = repmat(mean_IID(:,sourceIndex(sourceIter)),1,frameAmount);
+%     catch
+%         save error.mat;
+%         error('exit');
+%     end
+    IID_mat = repmat(mean_IID(:,sourceIndex(sourceIter)),1,frameAmount);
     dis_mat(:,:,sourceIter) = ((abs(IID_mat.*tf_L-exp(-1j*sourceITD(sourceIter)/onesample.*fmat).*tf_R)).^2)./(ones(frameSize,frameAmount)+IID_mat.^2);
 end
 %按最短距离原则计算mask

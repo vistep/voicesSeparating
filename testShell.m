@@ -7,8 +7,9 @@ for i = 1:length(deg)
 %     inPutFilePath = sprintf('E:\\Document\\科研相关\\语音库\\data\\虚拟声\\whitenoise\\female_noise_15_%02d.wav',deg(i));
 %     inPutFilePath = sprintf('E:\\Document\\科研相关\\语音库\\data\\虚拟声\\whitenoise\\female_noise_10_%02d.wav',deg(i));
 %     inPutFilePath = sprintf('E:\\Document\\科研相关\\语音库\\data\\虚拟声\\whitenoise\\female_noise_5_%02d.wav',deg(i));
-    inPutFilePath = sprintf('E:\\Document\\科研相关\\语音库\\data\\虚拟声\\whitenoise\\female_noise_0_%02d.wav',deg(i));
+%     inPutFilePath = sprintf('E:\\Document\\科研相关\\语音库\\data\\虚拟声\\whitenoise\\female_noise_0_%02d.wav',deg(i));
+    inPutFilePath = sprintf('E:\\MatlabCode\\seperation\\shu\\mixedvoice\\mixed_f_10_m_%02d.wav',deg(i));
 
-    [output,ami] = sepIter(inPutFilePath,1);
+    [output,ami] = sepIter(inPutFilePath,4);
     degEst{i}=ami;
 end

@@ -5,7 +5,7 @@ clear all;
 clc
 fs = 16000;
 frameSize = 512;%一帧为60ms
-Offset = frameSize/2;
+Offset = frameSize;
 frameShift = 128;%帧移为20ms
 MaxLag = 44;
 onesample = 1000000/fs;
@@ -13,7 +13,7 @@ onesample = 1000000/fs;
 
 for azimuth =0:5:90
     
-    inPutFilePath = sprintf('E:\\Document\\科研相关\\lxx语音库\\方位白噪声16k\\WhiteNoise%03d.wav',azimuth);
+    inPutFilePath = sprintf('E:\\Document\\科研相关\\语音库\\data\\Speech\\方位白噪声\\WhiteNoise%03d.wav',azimuth);
     [y, fs_original] = audioread(inPutFilePath);
     x_L = resample(y(:,1),16000,44100);
     x_R = resample(y(:,2),16000,44100);
@@ -28,13 +28,14 @@ for azimuth =0:5:90
     frameAmount = size(tf_L,2);
     
     for n = 1:frameAmount
-        
         Pxx = tf_L(:,n);
         Pyy = tf_R(:,n);
-        Pxy = Pxx.*conj(Pyy);
+        Pxx1 = fft(ifft(tf_L(:,n)),2*frameSize);
+        Pyy1 = fft(ifft(tf_R(:,n)),2*frameSize);
+        Pxy1 = Pxx1.*conj(Pyy1);
         
         
-        [G,t,R] = GCC('PHAT',Pxx,Pyy,Pxy,fs,frameSize,frameSize);
+        [G,t,R] = GCC('PHAT',Pxx1,Pyy1,Pxy1,fs,2*frameSize,2*frameSize);
         delay_index=Offset-MaxLag:Offset+MaxLag;
         delay_us=delay_index/fs*1000000;
         G_new = G(delay_index);
