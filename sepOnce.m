@@ -112,7 +112,8 @@ fmat=freq(ones(size(tf_L,2),1),:)';
 % delta = onesample*delta; %转换成us
 %4.2计算每个频点的掩码
 load('./trainData/IID_GCC_16k.mat');
-mask = 0.01*ones(frameSize,frameAmount,sourceNum);%最后一维代表声源编号
+% mask = 0.01*ones(frameSize,frameAmount,sourceNum);%最后一维代表声源编号
+mask = zeros(frameSize,frameAmount,sourceNum);%最后一维代表声源编号
 % mask1 = zeros(frameSize,frameAmount,sourceNum);
 dis_mat = zeros(frameSize,frameAmount,sourceNum);
 % dis_mat1 = zeros(frameSize,frameAmount,sourceNum);
@@ -160,7 +161,10 @@ for i = 1:frameSize/2 %计算0~pi之间的mask
         mask(i,j,belong) = 1;
     end
 end
-mask(frameSize/2+1:frameSize,:,:) = mask(1:frameSize/2,:,:); %后一半的mask与前一半对称
+%后一半的mask与前一半镜像对称
+for n = 1:size(mask,3)
+    mask(frameSize/2+1:frameSize,:,n) = flipud(mask(1:frameSize/2,:,n));
+end
 %4.3根据掩码分离频点
 tf_L_seped = zeros(size(mask));
 tf_R_seped = zeros(size(mask));
