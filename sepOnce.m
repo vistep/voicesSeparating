@@ -44,6 +44,14 @@ for audioIter = 1:audioNum
         end
     end
 end
+%2.1计算每一帧的能量
+ener = zeros(1,frameAmount,audioNum);
+for audioIter = 1:audioNum
+    for n = 1:frameAmount
+        ener(1,n,audioIter) = sum(abs(tf_L(:,n,audioIter)).^2+abs(tf_R(:,n,audioIter)).^2)/frameSize;
+    end
+end
+ITD(ener<0.5) = NaN;%%将能量低于阈值的帧算出来的ITD置为无效
 %%
 %3.统计ITD,定位声源
 %3.0整理ITD
@@ -78,7 +86,7 @@ for n = 1:length(source_list)
     sourceMean(1,n) = source_list{1,n}.getMean;
 end
 %3.4排除野点造成的假声源
-sourceMean1 = sourceMean(sourceCount>frameAmount*0.1);                     %阈值2:规定多少频率以下的算作假声源
+sourceMean1 = sourceMean(sourceCount>length(ITD)*0.1);                     %阈值2:规定多少频率以下的算作假声源
 %3.5与训练数据对比，确定声源位置
 load('./trainData/ITD_GCC_16k.mat');
 % sourceIndex = zeros(1,length(sourceMean1));
