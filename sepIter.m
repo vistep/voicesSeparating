@@ -19,8 +19,10 @@ function [output,azimuthout] = sepIter(inPutFilePath,times)
     MaxLag = 44;
     onesample = 1000000/fs;
     %2.2重采样
-    x_L = resample(x_L,fs,fs_original);
-    x_R = resample(x_R,fs,fs_original);
+    if (fs_original==44100)
+        x_L = resample(x_L,fs,fs_original);
+        x_R = resample(x_R,fs,fs_original);
+    end
     %2.3分帧加窗,时频分析
     awin=hamming(frameSize);
     tf_L=tfanalysis(x_L,awin,frameShift,frameSize); % time-freq domain

@@ -20,7 +20,7 @@ for i = 0:10:90
         [female,fs] = audioread(inPutFilePathF);
         [male,fs] = audioread(inPutFilePathM);
         len = min([size(female,1),size(male,1)]);
-        mixed = female(1:len,:) + male(1:len,:);
+        mixed = female(1:len,:)./max(max(female(1:len,:))) + male(1:len,:)./max(max(male(1:len,:)));
         filename = ['virtl_mixed_f_',num2str(i),'_m_',num2str(j),'.wav'];
         audiowrite(['E:\\MatlabCode\\seperation\\shu\\mixedvoice\\',filename],mixed,fs);
     end
