@@ -54,7 +54,7 @@ for audioIter = 1:audioNum
         ener(1,n,audioIter) = sum(abs(tf_L(:,n,audioIter)).^2+abs(tf_R(:,n,audioIter)).^2)/frameSize;
     end
 end
-ITD(ener<0.5) = NaN;%%将能量低于阈值的帧算出来的ITD置为无效
+ITD(ener<0.1) = NaN;%%将能量低于阈值的帧算出来的ITD置为无效
 
 %%
 %声源的估计分为两类。A:语音未分离时估计声源个数和位置。B:语音分离后仅重新估计声源位置
