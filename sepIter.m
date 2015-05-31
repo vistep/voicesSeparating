@@ -1,4 +1,4 @@
-function [output,azimuthout] = sepIter(inPutFilePath,times)
+function [output,azimuthout] = sepIter(inPutFilePath,times,sourceNum)
     %%
     %1.读取混合语音
     % inPutFilePath = 'E:\\MatlabCode\\seperation\\shu\\female_male_10_50.wav';
@@ -31,7 +31,7 @@ function [output,azimuthout] = sepIter(inPutFilePath,times)
     %%
     %3.定位分离迭代
     for Iter = 1:times
-        [tf_L,tf_R,mono,azimuthout] = sepOnce(tf_L,tf_R,fs);
+        [tf_L,tf_R,mono,azimuthout] = sepOnce(tf_L,tf_R,fs,sourceNum);
     end
 
     %%

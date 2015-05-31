@@ -1,4 +1,4 @@
-function [ tf_L_seped,tf_R_seped,mono,azimuthout ] = sepOnce( tf_L,tf_R,fs )
+function [ tf_L_seped,tf_R_seped,mono,azimuthout ] = sepOnce( tf_L,tf_R,fs,sourceNum )
 %source location detect and sound sepration
 %   input:
 %         tf_L: TF units after window and segmentation of left channel
@@ -57,7 +57,7 @@ end
 ITD(ener<0.1) = NaN;%%将能量低于阈值的帧算出来的ITD置为无效
 
 %%
-%声源的估计分为两类。A:语音未分离时估计声源个数和位置。B:语音分离后仅重新估计声源位置
+%声源的估计分为两类。A:第一次分离。B:语音分离后仅重新估计声源位置
 if(audioNum == 1)
 %partA
     %3.统计ITD,定位声源
@@ -72,7 +72,7 @@ if(audioNum == 1)
     for ITDiter = 1:length(ITD)
         flag = 0;
         for i = 1:length(source_list)
-            if(abs(ITD(ITDiter)-source_list{1,i}.getMean)<25)        %阈值1：规定多少范围内的ITD算作一个声源的
+            if(abs(ITD(ITDiter)-source_list{1,i}.getMean)<30)        %阈值1：规定多少范围内的ITD算作一个声源的
                 source_list{1,i} = source_list{1,i}.Add(ITDiter,ITD(ITDiter));
                 flag = 1;
                 break;
@@ -92,8 +92,15 @@ if(audioNum == 1)
         sourceCount(1,n) = source_list{1,n}.getNum;
         sourceMean(1,n) = source_list{1,n}.getMean;
     end
-    %3.4排除野点造成的假声源
-    sourceMean1 = sourceMean(sourceCount>length(ITD)*0.1);                     %阈值2:规定多少频率以下的算作假声源
+%     %3.4排除野点造成的假声源
+%     sourceMean1 = sourceMean(sourceCount>length(ITD)*0.1);                     %阈值2:规定多少频率以下的算作假声源
+    %3.4根据sourceNum选出数量最多的几个声源
+    sourceMean1 = zeros(1,sourceNum);
+    for n = 1:length(sourceMean1)
+        [~,index] = max(sourceCount);
+        sourceMean1(n) = sourceMean(index);
+        sourceCount(index) = 0;
+    end
     %3.5与训练数据对比，确定声源位置
     % sourceIndex = zeros(1,length(sourceMean1));
     sourceITD = zeros(1,length(sourceMean1));
@@ -102,7 +109,6 @@ if(audioNum == 1)
     %     sourceIndex(1,n) = minIndex;
         sourceITD(1,n) = mean_ITD(minIndex);
     end
-    sourceITD = unique(sourceITD);%去除重复声源
 else
 %partB
     sourceITD = zeros(1,audioNum);
@@ -147,6 +153,7 @@ else
         sourceITD(1,audioIter) = mean_ITD(minIndex);  
     end
 end
+sourceITD = unique(sourceITD);%去除重复声源
 sourceNum = length(sourceITD);
 sourceIndex = zeros(1,sourceNum);
 for n = 1:sourceNum
