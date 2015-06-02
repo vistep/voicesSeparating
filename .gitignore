@@ -219,3 +219,5 @@ pip-log.txt
 *.wav
 *.mat
 *.asv
+mixedvoice/female_regued.pkf
+*.pkf

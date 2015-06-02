@@ -212,7 +212,7 @@ for sourceIter = 1:sourceNum
     dis_mat(:,:,sourceIter) = ((abs(IID_mat.*tf_L-exp(-1j*sourceITD(sourceIter)/onesample.*fmat).*tf_R)).^2)./(ones(frameSize,frameAmount)+IID_mat.^2);
 end
 %按最短距离原则计算mask
-for i = 1:frameSize/2 %计算0~pi之间的mask
+for i = 1:frameSize/2+1 %计算0~pi之间的mask
     for j = 1:frameAmount
         [~,belong] = min(dis_mat(i,j,:));
         mask(i,j,belong) = 1;
@@ -220,7 +220,7 @@ for i = 1:frameSize/2 %计算0~pi之间的mask
 end
 %后一半的mask与前一半镜像对称
 for n = 1:size(mask,3)
-    mask(frameSize/2+1:frameSize,:,n) = flipud(mask(1:frameSize/2,:,n));
+    mask(frameSize/2+2:frameSize,:,n) = flipud(mask(2:frameSize/2,:,n));
 end
 %4.3根据掩码分离频点
 tf_L_seped = zeros(size(mask));
