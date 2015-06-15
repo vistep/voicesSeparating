@@ -38,6 +38,7 @@ function [output,azimuthout] = sepIter(inPutFilePath,times,sourceNum)
     %4.×ª»»µ½Ê±Óò
     output = cell(1,size(mono,3));
     for n = 1:size(mono,3)
-        output{n}=tfsynthesis(mono(:,:,n),sqrt(2)*awin/(2*frameSize),frameShift);
+%         output{n}=tfsynthesis(mono(:,:,n),sqrt(2)*awin/(2*frameSize),frameShift);
+    output{n}=tfsynthesis(tf_R(:,:,n),sqrt(2)*awin/(2*frameSize),frameShift);
     end
 end

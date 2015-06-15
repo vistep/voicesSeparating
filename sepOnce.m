@@ -64,21 +64,38 @@ if(audioNum == 1)
     %3.0整理ITD
     ITD = reshape(ITD,1,frameAmount*audioNum);
     ITD(isnan(ITD))=[]; %删除NaN
+    ITD(abs(ITD)>750) = [];
+    %取600帧ITD
+    ITD = ITD(1:600);
     %3.1将第一个ITD归入第一个声源
     source_list = cell(1);
     newSource = Source(1,ITD(1));
     source_list{1,1} = newSource;
     %3.2根据阈值将各个ITD归入已有声源或新建声源
     for ITDiter = 1:length(ITD)
-        flag = 0;
+%         flag = 0;
+%         for i = 1:length(source_list)
+%             if(abs(ITD(ITDiter)-source_list{1,i}.getMean)<50)        %阈值1：规定多少范围内的ITD算作一个声源的
+%                 source_list{1,i} = source_list{1,i}.Add(ITDiter,ITD(ITDiter));
+%                 flag = 1;
+%                 break;
+%             end
+%         end
+%         if(flag == 0)
+%             newSource = Source(ITDiter,ITD(ITDiter));
+%             newList = cell(1);
+%             newList{1,1} = newSource;
+%             source_list = [source_list, newList];
+%         end
+        center = zeros(1,length(source_list));
         for i = 1:length(source_list)
-            if(abs(ITD(ITDiter)-source_list{1,i}.getMean)<30)        %阈值1：规定多少范围内的ITD算作一个声源的
-                source_list{1,i} = source_list{1,i}.Add(ITDiter,ITD(ITDiter));
-                flag = 1;
-                break;
-            end
+            center(i) = source_list{1,i}.getMean;
         end
-        if(flag == 0)
+        disTocenter = abs(ITD(ITDiter)*ones(1,length(source_list))-center);
+        [minDis,minIndex] = min(disTocenter);
+        if(minDis<120)   %阈值1：规定多少范围内的ITD算作一个声源的
+            source_list{1,minIndex} = source_list{1,minIndex}.Add(ITDiter,ITD(ITDiter));
+        else
             newSource = Source(ITDiter,ITD(ITDiter));
             newList = cell(1);
             newList{1,1} = newSource;
@@ -117,21 +134,38 @@ else
         ITDtmp = ITD(1,:,audioIter);
         ITDtmp = reshape(ITDtmp,1,frameAmount);
         ITDtmp(isnan(ITDtmp))=[]; %删除NaN
+        ITDtmp(abs(ITDtmp)>750) = [];
+        %取600帧ITD
+        ITDtmp = ITDtmp(1:600);
         %3.1将第一个ITD归入第一个声源
         source_list = cell(1);
         newSource = Source(1,ITDtmp(1));
         source_list{1,1} = newSource;
         %3.2根据阈值将各个ITD归入已有声源或新建声源
         for ITDiter = 1:length(ITDtmp)
-            flag = 0;
+%             flag = 0;
+%             for i = 1:length(source_list)
+%                 if(abs(ITDtmp(ITDiter)-source_list{1,i}.getMean)<400)        %阈值1：规定多少范围内的ITD算作一个声源的
+%                     source_list{1,i} = source_list{1,i}.Add(ITDiter,ITDtmp(ITDiter));
+%                     flag = 1;
+%                     break;
+%                 end
+%             end
+%             if(flag == 0)
+%                 newSource = Source(ITDiter,ITDtmp(ITDiter));
+%                 newList = cell(1);
+%                 newList{1,1} = newSource;
+%                 source_list = [source_list, newList];
+%             end
+            center = zeros(1,length(source_list));
             for i = 1:length(source_list)
-                if(abs(ITDtmp(ITDiter)-source_list{1,i}.getMean)<25)        %阈值1：规定多少范围内的ITD算作一个声源的
-                    source_list{1,i} = source_list{1,i}.Add(ITDiter,ITDtmp(ITDiter));
-                    flag = 1;
-                    break;
-                end
+                center(i) = source_list{1,i}.getMean;
             end
-            if(flag == 0)
+            disTocenter = abs(ITDtmp(ITDiter)*ones(1,length(source_list))-center);
+            [minDis,minIndex] = min(disTocenter);
+            if(minDis<400)   %阈值1：规定多少范围内的ITD算作一个声源的
+                source_list{1,minIndex} = source_list{1,minIndex}.Add(ITDiter,ITDtmp(ITDiter));
+            else
                 newSource = Source(ITDiter,ITDtmp(ITDiter));
                 newList = cell(1);
                 newList{1,1} = newSource;
@@ -148,6 +182,7 @@ else
         %3.4取数量最多的类的均值为统计值ITD
         [~,index] = max(sourceCount);
         sourceMean1 = sourceMean(index);
+%         sourceMean1 = mean(ITDtmp);
         %3.5与训练数据对比，确定声源位置
         [~,minIndex] = min(abs(sourceMean1*ones(1,length(mean_ITD))-mean_ITD));
         sourceITD(1,audioIter) = mean_ITD(minIndex);  
