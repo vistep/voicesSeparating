@@ -65,8 +65,8 @@ if(audioNum == 1)
     ITD = reshape(ITD,1,frameAmount*audioNum);
     ITD(isnan(ITD))=[]; %删除NaN
     ITD(abs(ITD)>750) = [];
-    %取600帧ITD
-    ITD = ITD(1:600);
+%     %取600帧ITD
+%     ITD = ITD(1:600);
     %3.1将第一个ITD归入第一个声源
     source_list = cell(1);
     newSource = Source(1,ITD(1));
@@ -93,7 +93,7 @@ if(audioNum == 1)
         end
         disTocenter = abs(ITD(ITDiter)*ones(1,length(source_list))-center);
         [minDis,minIndex] = min(disTocenter);
-        if(minDis<120)   %阈值1：规定多少范围内的ITD算作一个声源的
+        if(minDis<90)   %阈值1：规定多少范围内的ITD算作一个声源的
             source_list{1,minIndex} = source_list{1,minIndex}.Add(ITDiter,ITD(ITDiter));
         else
             newSource = Source(ITDiter,ITD(ITDiter));
@@ -135,17 +135,19 @@ else
         ITDtmp = reshape(ITDtmp,1,frameAmount);
         ITDtmp(isnan(ITDtmp))=[]; %删除NaN
         ITDtmp(abs(ITDtmp)>750) = [];
-        %取600帧ITD
-        ITDtmp = ITDtmp(1:600);
+%         %取600帧ITD
+%         if(length(ITDtmp)>600)
+%             ITDtmp = ITDtmp(1:600);
+%         end
         %3.1将第一个ITD归入第一个声源
         source_list = cell(1);
         newSource = Source(1,ITDtmp(1));
         source_list{1,1} = newSource;
         %3.2根据阈值将各个ITD归入已有声源或新建声源
         for ITDiter = 1:length(ITDtmp)
-%             flag = 0;
+            flag = 0;
 %             for i = 1:length(source_list)
-%                 if(abs(ITDtmp(ITDiter)-source_list{1,i}.getMean)<400)        %阈值1：规定多少范围内的ITD算作一个声源的
+%                 if(abs(ITDtmp(ITDiter)-source_list{1,i}.getMean)<300)        %阈值1：规定多少范围内的ITD算作一个声源的
 %                     source_list{1,i} = source_list{1,i}.Add(ITDiter,ITDtmp(ITDiter));
 %                     flag = 1;
 %                     break;
@@ -163,7 +165,7 @@ else
             end
             disTocenter = abs(ITDtmp(ITDiter)*ones(1,length(source_list))-center);
             [minDis,minIndex] = min(disTocenter);
-            if(minDis<400)   %阈值1：规定多少范围内的ITD算作一个声源的
+            if(minDis<300)   %阈值1：规定多少范围内的ITD算作一个声源的
                 source_list{1,minIndex} = source_list{1,minIndex}.Add(ITDiter,ITDtmp(ITDiter));
             else
                 newSource = Source(ITDiter,ITDtmp(ITDiter));
@@ -197,62 +199,37 @@ end
 azimuthout = azimuth(sourceIndex);
 %%
 %4.声源分离 
-% mask = zeros(length(sourceITD),frameAmount);
-% for n = 1:frameAmount
-%     [~,belong] = min(abs(ITD(n)*ones(1,length(sourceITD))-sourceITD));
-%     mask(belong,n) = 1;
-% end
-%4.1计算每个频点的ITD
-% freq=[(0:frameSize/2-1) (-frameSize/2:-1)]*(2*pi/(frameSize));
 freq=(0:frameSize-1)*(2*pi/(frameSize));
 fmat=freq(ones(size(tf_L,2),1),:)';
-% R21=(tf_L+eps)./(tf_R+eps); 
-% delta=-imag(log(R21))./fmat;
-% delta(1,:) = zeros(1,size(delta,2)); %直流分量的相位差为0
-% delta = onesample*delta; %转换成us
 %4.2计算每个频点的掩码
 % mask = 0.01*ones(frameSize,frameAmount,sourceNum);%最后一维代表声源编号
 mask = zeros(frameSize,frameAmount,sourceNum);%最后一维代表声源编号
-% mask1 = zeros(frameSize,frameAmount,sourceNum);
 dis_mat = zeros(frameSize,frameAmount,sourceNum);
-% dis_mat1 = zeros(frameSize,frameAmount,sourceNum);
-% for n = 1:frameAmount
-%     for i = 1:frameSize
-%         [~,belong] = min(abs(delta(i,n)*ones(1,length(sourceITD))-sourceITD));
-%         mask(i,n,belong) = 1;
-%     end
-% end
 %将分离开的频点组合起来
 tf_L = sum(tf_L,3);
 tf_R = sum(tf_R,3);
 
-% for n = 1:frameAmount
-%     for i = 1:frameSize
-%         distance = zeros(1,sourceNum);
-%         for j = 1:sourceNum
-% %             distance(1,j) = (abs(mean_IID(i,sourceIndex(j))*exp(-1j*2*pi/frameSize*i*sourceITD(j)/onesample)*tf_L(i,n)-tf_R(i,n)))^2....
-% %             /(1+(mean_IID(i,sourceIndex(j)))^2);
-% %             distance(1,j) = (abs(mean_IID(i,sourceIndex(j))*tf_L(i,n)-exp(-1j*2*pi/frameSize*i*sourceITD(j)/onesample)*tf_R(i,n)))^2....
-% %             /(1+(mean_IID(i,sourceIndex(j)))^2);
-%             distance(1,j) = (abs(mean_IID(i,sourceIndex(j))*tf_L(i,n)-exp(-1j*2*pi/frameSize*(i-1)*sourceITD(j)/onesample)*tf_R(i,n)))^2....
-%             /(1+(mean_IID(i,sourceIndex(j)))^2);
-% %             dis_mat1(i,n,j)=distance(1,j);
-%         end
-%         [~,belong] = min(distance);
-%         mask(i,n,belong) = 1;
-%     end 
-% end
 %将各个声源数据代入计算两声道对应频点之间的距离
 for sourceIter = 1:sourceNum
-%     try
-%         IID_mat = repmat(mean_IID(:,sourceIndex(sourceIter)),1,frameAmount);
-%     catch
-%         save error.mat;
-%         error('exit');
-%     end
     IID_mat = repmat(mean_IID(:,sourceIndex(sourceIter)),1,frameAmount);
     dis_mat(:,:,sourceIter) = ((abs(IID_mat.*tf_L-exp(-1j*sourceITD(sourceIter)/onesample.*fmat).*tf_R)).^2)./(ones(frameSize,frameAmount)+IID_mat.^2);
 end
+%     theta = -1.*angle(tf_L./tf_R);
+%     for i = 1:size(theta,1)
+%         for j = 1:size(theta,2)
+%             if(theta(i,j)>0)
+%                 theta(i,j)=mod(theta(i,j),pi);
+%             else
+%                 theta(i,j)=mod(theta(i,j),-pi);
+%             end
+%         end
+%     end
+%     delta = theta./fmat;
+%     delta(isnan(delta)) = 0;
+%     delta = delta.*onesample;
+% for sourceIter = 1:sourceNum
+%     dis_mat(:,:,sourceIter) = abs(delta - sourceITD(sourceIter)*ones(size(delta)));
+% end
 %按最短距离原则计算mask
 for i = 1:frameSize/2+1 %计算0~pi之间的mask
     for j = 1:frameAmount
