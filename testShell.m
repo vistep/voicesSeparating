@@ -2,7 +2,7 @@ clc;clear;close all;
 fs = 16000;
 deg = 10:10:90;
 degEst=cell(3,length(deg));
-for times = 3:3
+for times = 1:3
     for i = 1:length(deg)
         inPutFilePath = sprintf('E:\\Document\\科研相关\\语音库\\testDataNew\\female_male_0_%02d_white_20.wav',deg(i));
         [output,ami] = sepIter(inPutFilePath,times,2);
