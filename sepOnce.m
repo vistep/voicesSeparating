@@ -22,35 +22,41 @@ onesample = 1000000/fs;
 degree = 0:10:90;
 %%
 %2.计算每帧的特征
+feature_x = cell(1,audioNum);
 for audioIter = 1:audioNum
     vad = VAD(tfsynthesis(tf_R(:,:,audioIter),sqrt(2)*hamming(frameSize)/(2*frameSize),frameShift),0.3);
     [IID, correlation] = featureExtract(tf_L(:,:,audioIter),tf_R(:,:,audioIter),vad);
     correlation = bsxfun(@plus, correlation, 1);
     correlation = bsxfun(@rdivide, correlation, 2);
-    feature_x(:,:,audioIter) = [IID, correlation];
+    feature_x{audioIter} = [IID, correlation];
 end
 
 %%
 %声源的估计分为两类。A:第一次分离。B:语音分离后仅重新估计声源位置
 if(audioNum == 1)
 %partA
-labels = nnpredict(nn, feature_x);
+labels = nnpredict(nn, feature_x{1});
 deg = degree(labels);
-[IDX, center] = kmeans(deg,sourceNum);
+deg_tmp = deg(deg~=deg(1));
+[IDX, center] = kmeans(deg,sourceNum,'start',[deg(1);deg_tmp(1)]);
 else
 %partB
 for audioIter = 1:audioNum
-    labels = nnpredict(nn, feature_x(:,:,audioIter));
+    labels = nnpredict(nn, feature_x{audioIter});
     deg = degree(labels);
-    center(audioIter) = mean(deg);
+    [nelements, binCenter] = hist(deg,-5:10:95);
+    binCenter = binCenter(nelements > length(deg)*0.4);
+    nelements = nelements(nelements > length(deg)*0.4);
+    center(audioNum) = sum(binCenter .* nelements)/sum(nelements);
 end
 end
 %角度取整
-for audioIter = 1:audioNum
-    center(audioIter) = 10*round(center(audioIter)/10);
+for n = 1:length(center)
+    center(n) = 10*round(center(n)/10);
 end
 azimuthout = center;
 sourceIndex = center./10.*2 + 19*ones(size(center));
+sourceITD = mean_ITD(sourceIndex);
 %%
 %4.声源分离 
 freq=(0:frameSize-1)*(2*pi/(frameSize));

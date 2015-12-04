@@ -29,9 +29,9 @@ L = frameSize*400;
     y = reshape(x,1,M*N);
     index = repmat(vad,M,1);
     index = reshape(index,1,M*N);
-    figure()
-     plot(y(1:L));
-     hold on
-     plot(0.2*index(1:L),'r')       
+%     figure()
+%      plot(y(1:L));
+%      hold on
+%      plot(0.2*index(1:L),'r')       
 % end
 

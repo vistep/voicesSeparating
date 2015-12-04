@@ -8,8 +8,8 @@ for times = 1:3
         dnnModel = sprintf('./model/20dBmodel.mat');
         [output,ami] = sepIter(inPutFilePath,times,2,dnnModel);
         degEst{times,i}=ami;
-        audiowrite(sprintf('./output/outFemale_female_male_0_%02d_white_20.wav',deg(i)),output{1},fs)
-        audiowrite(sprintf('./output/outMale_female_male_0_%02d_white_20.wav',deg(i)),output{2},fs)
+%         audiowrite(sprintf('./output/outFemale_female_male_0_%02d_white_20.wav',deg(i)),output{1},fs)
+%         audiowrite(sprintf('./output/outMale_female_male_0_%02d_white_20.wav',deg(i)),output{2},fs)
     end
 end
 tmp = degEst';
