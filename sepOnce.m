@@ -1,4 +1,4 @@
-function [ tf_L_seped,tf_R_seped,mono,azimuthout ] = sepOnce( tf_L,tf_R,fs,sourceNum,dnnModel )
+function [ tf_L_seped,tf_R_seped,mono,azimuthout ] = sepOnce( tf_L,tf_R,fs,sourceNum,dnnModel,factor )
 %source location detect and sound sepration
 %   input:
 %         tf_L: TF units after window and segmentation of left channel
@@ -8,7 +8,9 @@ function [ tf_L_seped,tf_R_seped,mono,azimuthout ] = sepOnce( tf_L,tf_R,fs,sourc
 %         tf_R_seped: redistributed right TF units
 
 %   info: Jiaming.Shu 2015.4.29
-azimuth = -90:5:90;
+%   modifyed at 2015.12.12 by Jiaming.Shu 
+%   using DNN to locate sound source direction
+
 load('./trainData/ITD_GCC_16k.mat');
 load('./trainData/IID_GCC_16k.mat');
 load(dnnModel);
@@ -19,12 +21,14 @@ frameAmount = size(tf_L,2);
 audioNum = size(tf_L,3);
 frameShift = 256;
 onesample = 1000000/fs;
-degree = 0:10:90;
+degree = -90:10:90;
+mean_ITD = mean_ITD(1:2:end);
+mean_IID = mean_IID(:,1:2:end);
 %%
 %2.计算每帧的特征
 feature_x = cell(1,audioNum);
 for audioIter = 1:audioNum
-    vad = VAD(tfsynthesis(tf_R(:,:,audioIter),sqrt(2)*hamming(frameSize)/(2*frameSize),frameShift),0.3);
+    vad = VAD(tfsynthesis(tf_R(:,:,audioIter),sqrt(2)*hamming(frameSize)/(2*frameSize),frameShift),factor);
     [IID, correlation] = featureExtract(tf_L(:,:,audioIter),tf_R(:,:,audioIter),vad);
     correlation = bsxfun(@plus, correlation, 1);
     correlation = bsxfun(@rdivide, correlation, 2);
@@ -37,25 +41,28 @@ if(audioNum == 1)
 %partA
 labels = nnpredict(nn, feature_x{1});
 deg = degree(labels);
-deg_tmp = deg(deg~=deg(1));
-[IDX, center] = kmeans(deg,sourceNum,'start',[deg(1);deg_tmp(1)]);
+deg_tmp = deg(deg~=0);
+% [IDX, center] = kmeans(deg,sourceNum,'start',[deg(1);deg_tmp(1)]);
+[IDX, center] = kmeans(deg,sourceNum,'start',[deg_tmp(1);-1*deg_tmp(1)]);
 else
 %partB
 for audioIter = 1:audioNum
     labels = nnpredict(nn, feature_x{audioIter});
     deg = degree(labels);
-    [nelements, binCenter] = hist(deg,-5:10:95);
-    binCenter = binCenter(nelements > length(deg)*0.4);
-    nelements = nelements(nelements > length(deg)*0.4);
-    center(audioNum) = sum(binCenter .* nelements)/sum(nelements);
+    [nelements, binCenter] = hist(deg,-90:10:90);
+%     binCenter = binCenter(nelements > length(deg)*0.2);
+%     nelements = nelements(nelements > length(deg)*0.2);
+%     center(audioIter) = sum(binCenter .* nelements)/sum(nelements);
+    [~,idtmp] = max(nelements);
+    center(audioIter) = binCenter(idtmp);
 end
 end
-%角度取整
+%计算最近的角度
+sourceIndex = nan(size(center));
 for n = 1:length(center)
-    center(n) = 10*round(center(n)/10);
+    [~ , sourceIndex(n)] = min(abs(center(n).*ones(size(degree)) - degree));
 end
-azimuthout = center;
-sourceIndex = center./10.*2 + 19*ones(size(center));
+azimuthout = degree(sourceIndex);
 sourceITD = mean_ITD(sourceIndex);
 %%
 %4.声源分离 

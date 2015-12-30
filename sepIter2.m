@@ -1,4 +1,4 @@
-function [output,azimuthout] = sepIter(inPutFilePath,times,sourceNum,dnnModel,VADfactor)
+function [output,err] = sepIter2(inPutFilePath,times,dnnModel,VADfactor,target)
     %%
     %1.读取混合语音
     % inPutFilePath = 'E:\\MatlabCode\\seperation\\shu\\female_male_10_50.wav';
@@ -28,13 +28,13 @@ function [output,azimuthout] = sepIter(inPutFilePath,times,sourceNum,dnnModel,VA
     %%
     %3.定位分离迭代
     for Iter = 1:times
-        [tf_L,tf_R,mono,azimuthout] = sepOnce(tf_L,tf_R,fs,sourceNum,dnnModel,VADfactor);
+        [tf_L,tf_R,err] = sepOnce2(tf_L,tf_R,fs,dnnModel,VADfactor,target);
     end
 
     %%
     %4.转换到时域
-    output = cell(1,size(mono,3));
-    for n = 1:size(mono,3)
+    output = cell(1,size(tf_R,3));
+    for n = 1:size(tf_R,3)
 %         output{n}=tfsynthesis(mono(:,:,n),sqrt(2)*awin/(2*frameSize),frameShift);
     output{n}=tfsynthesis(tf_R(:,:,n),sqrt(2)*awin/(2*frameSize),frameShift);
     end

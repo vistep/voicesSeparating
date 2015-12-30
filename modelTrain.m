@@ -1,22 +1,19 @@
 clc;clear all;close all;
 %%
 %feature extract
-deg = 0:10:90;
+deg = [270:10:350,0:10:90];
+% deg = 0:10:90;
 train_x = [];
 train_y = [];
 test_x = [];
 test_y = [];
 for i = 1:length(deg)
-    inPutFilePath = sprintf('E:\\Document\\科研相关\\语音库\\有混响\\TestData\\female_%02d_white_0_Rev_600.wav',deg(i));
-%     inPutFilePath = sprintf('E:\\Document\\科研相关\\语音库\\噪声无混响\\TestData\\female_%02d_white_20.wav',deg(i));
-%     if deg(i)==0
-%         inPutFilePath = sprintf('E:\\Document\\科研相关\\语音库\\噪声无混响\\TestData\\female_%01d_white_20.wav',deg(i));
-%     end
-    load('./VADdata/female_0_white_0_Rev_600_512_index.mat');
-    [IID, correlation] = featureExtract(inPutFilePath,vad1);
+    inPutFilePath = sprintf(['E:\\Document\\科研相关\\语音库\\180度声源\\female1_' num2str(deg(i)) '_white_20_Rev_600.wav']);
+    [IID, correlation] = featureExtract2(inPutFilePath);
     correlation = bsxfun(@plus, correlation, 1);
     correlation = bsxfun(@rdivide, correlation, 2);
     tmp_x = [IID, correlation];
+%     tmp_x = correlation;
     tmp_y = zeros(size(tmp_x,1), length(deg));
     tmp_y(:, i) = 1;
     train_x = [train_x; tmp_x(1:round(9*size(tmp_x,1)/10),:)];
@@ -25,16 +22,12 @@ for i = 1:length(deg)
     test_y = [test_y; tmp_y(round(9*size(tmp_x,1)/10)+1:end,:)];
 end
 for i = 1:length(deg)
-    inPutFilePath = sprintf('E:\\Document\\科研相关\\语音库\\有混响\\TestData\\male_%02d_white_0_Rev_600.wav',deg(i));
-%     inPutFilePath = sprintf('E:\\Document\\科研相关\\语音库\\噪声无混响\\TestData\\male_%02d_white_20.wav',deg(i));
-%     if deg(i)==0
-%         inPutFilePath = sprintf('E:\\Document\\科研相关\\语音库\\噪声无混响\\TestData\\male_%01d_white_20.wav',deg(i));
-%     end
-    load('./VADdata/male_0_white_0_Rev_600_512_index.mat');
-    [IID, correlation] = featureExtract(inPutFilePath,vad1);
+    inPutFilePath = sprintf(['E:\\Document\\科研相关\\语音库\\180度声源\\male1_' num2str(deg(i)) '_white_20_Rev_600.wav']);
+    [IID, correlation] = featureExtract2(inPutFilePath);
     correlation = bsxfun(@plus, correlation, 1);
     correlation = bsxfun(@rdivide, correlation, 2);
     tmp_x = [IID, correlation];
+%     tmp_x = correlation;
     tmp_y = zeros(size(tmp_x,1), length(deg));
     tmp_y(:, i) = 1;
     train_x = [train_x; tmp_x(1:round(9*size(tmp_x,1)/10),:)];
