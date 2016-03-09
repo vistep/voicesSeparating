@@ -1,15 +1,23 @@
 clc;clear;close all;
 fs = 16000;
-deg = [270:10:350,0:10:90];
-errEst=cell(3,length(deg));
+
+deg = [10,320,60,280;
+    20,300,50,270;
+    20,280,70,310;
+    40,290,10,330;
+    70,340,30,280];
+Rev = '';
+degEst=cell(3,size(deg,1));
 for times = 1:3
-    for i = 1:length(deg)
-        inPutFilePath = sprintf(['E:\\Document\\科研相关\\语音库\\180度声源\\male2_' num2str(deg(i)) '_white_0.wav']);
-        dnnModel = sprintf('./modelWithoutIID/0dB.mat');
-        [output,err] = sepIter2(inPutFilePath,times,dnnModel,0.5,i);
-        errEst{times,i}=1-err;
-%         audiowrite(sprintf('./output/outFemale_female_male_0_%02d_white_20.wav',deg(i)),output{1},fs)
-%         audiowrite(sprintf('./output/outMale_female_male_0_%02d_white_20.wav',deg(i)),output{2},fs)
+    for i = 1:size(deg,1)
+        inPutFilePath = sprintf('./mixedvoice/4sources/%d_%d_%d_%d_white_0%s.wav',deg(i,1),deg(i,2)-360,deg(i,3),deg(i,4)-360,Rev);
+        dnnModel = sprintf('./model/20dB.mat');
+        [output,ami] = sepIter(inPutFilePath,times,4,dnnModel,0.1);
+        degEst{times,i}=ami;
+        str1 = strsplit(inPutFilePath,'/');
+%         audiowrite(sprintf(['./output/outFemale1_' str1{end}]),output{1},fs);
+%         audiowrite(sprintf(['./output/outFemale2_' str1{end}]),output{2},fs);
+%         audiowrite(sprintf(['./output/outMale2_' str1{end}]),output{3},fs);
     end
 end
-tmp = errEst';
+tmp = degEst';

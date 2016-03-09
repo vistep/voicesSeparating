@@ -1,14 +1,14 @@
 clc;clear all;close all;
 %%
 %feature extract
-deg = [270:10:350,0:10:90];
-% deg = 0:10:90;
+% deg = [270:10:350,0:10:90];
+deg = 0:10:90;
 train_x = [];
 train_y = [];
 test_x = [];
 test_y = [];
 for i = 1:length(deg)
-    inPutFilePath = sprintf(['E:\\Document\\科研相关\\语音库\\180度声源\\female1_' num2str(deg(i)) '_white_20_Rev_600.wav']);
+    inPutFilePath = sprintf(['E:\\Document\\科研相关\\语音库\\data\\采集声_胡婕\\female\\female_' num2str(deg(i)) '.wav']);
     [IID, correlation] = featureExtract2(inPutFilePath);
     correlation = bsxfun(@plus, correlation, 1);
     correlation = bsxfun(@rdivide, correlation, 2);
@@ -21,20 +21,20 @@ for i = 1:length(deg)
     test_x = [test_x; tmp_x(round(9*size(tmp_x,1)/10)+1:end,:)];
     test_y = [test_y; tmp_y(round(9*size(tmp_x,1)/10)+1:end,:)];
 end
-for i = 1:length(deg)
-    inPutFilePath = sprintf(['E:\\Document\\科研相关\\语音库\\180度声源\\male1_' num2str(deg(i)) '_white_20_Rev_600.wav']);
-    [IID, correlation] = featureExtract2(inPutFilePath);
-    correlation = bsxfun(@plus, correlation, 1);
-    correlation = bsxfun(@rdivide, correlation, 2);
-    tmp_x = [IID, correlation];
-%     tmp_x = correlation;
-    tmp_y = zeros(size(tmp_x,1), length(deg));
-    tmp_y(:, i) = 1;
-    train_x = [train_x; tmp_x(1:round(9*size(tmp_x,1)/10),:)];
-    train_y = [train_y; tmp_y(1:round(9*size(tmp_x,1)/10),:)];
-    test_x = [test_x; tmp_x(round(9*size(tmp_x,1)/10)+1:end,:)];
-    test_y = [test_y; tmp_y(round(9*size(tmp_x,1)/10)+1:end,:)];
-end
+% for i = 1:length(deg)
+%     inPutFilePath = sprintf(['E:\\Document\\科研相关\\语音库\\180度声源\\male1_' num2str(deg(i)) '_white_0_Rev_600.wav']);
+%     [IID, correlation] = featureExtract2(inPutFilePath);
+%     correlation = bsxfun(@plus, correlation, 1);
+%     correlation = bsxfun(@rdivide, correlation, 2);
+%     tmp_x = [IID, correlation];
+% %     tmp_x = correlation;
+%     tmp_y = zeros(size(tmp_x,1), length(deg));
+%     tmp_y(:, i) = 1;
+%     train_x = [train_x; tmp_x(1:round(9*size(tmp_x,1)/10),:)];
+%     train_y = [train_y; tmp_y(1:round(9*size(tmp_x,1)/10),:)];
+%     test_x = [test_x; tmp_x(round(9*size(tmp_x,1)/10)+1:end,:)];
+%     test_y = [test_y; tmp_y(round(9*size(tmp_x,1)/10)+1:end,:)];
+% end
 %%
 %model train
 rand('state',0)

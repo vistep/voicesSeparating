@@ -43,7 +43,10 @@ labels = nnpredict(nn, feature_x{1});
 deg = degree(labels);
 deg_tmp = deg(deg~=0);
 % [IDX, center] = kmeans(deg,sourceNum,'start',[deg(1);deg_tmp(1)]);
-[IDX, center] = kmeans(deg,sourceNum,'start',[deg_tmp(1);-1*deg_tmp(1)]);
+% [IDX, center] = kmeans(deg,sourceNum,'start',[deg_tmp(1);-1*deg_tmp(1)]);
+[nelements, binCenter] = hist(deg,-90:10:90);
+[~,idtmp] = sort(nelements);
+center = binCenter(idtmp(length(nelements) - sourceNum + 1 : end));
 else
 %partB
 for audioIter = 1:audioNum

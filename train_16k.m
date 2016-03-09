@@ -7,7 +7,7 @@ fs = 16000;
 frameSize = 512;%һ֡Ϊ60ms
 Offset = frameSize;
 frameShift = 128;%֡��Ϊ20ms
-MaxLag = 44;
+MaxLag = 16;
 onesample = 1000000/fs;
 
 

@@ -25,7 +25,7 @@ end
 awin=hamming(frameSize);
 tf_L=tfanalysis(x_L,awin,frameShift,frameSize); % time-freq domain
 tf_R=tfanalysis(x_R,awin,frameShift,frameSize) ; % time-freq domain
-vad = VAD(y,0.3);
+vad = VAD(x_L,0.3);
 tf_L=tf_L(:,vad);
 tf_R=tf_R(:,vad);
 frameAmount = size(tf_L,2);
